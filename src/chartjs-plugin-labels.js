@@ -35,7 +35,7 @@
   }
 
   var SUPPORTED_TYPES = {};
-  ['pie', 'doughnut', 'polarArea', 'bar'].forEach(function (t) {
+  ['pie', 'doughnut', 'polarArea', 'bar', 'horizontalBar'].forEach(function (t) {
     SUPPORTED_TYPES[t] = true;
   });
 
@@ -63,9 +63,10 @@
       images: [],
       outsidePadding: 2,
       textMargin: 2,
+      textAlign: "center",
       overlap: true
     }, options);
-    if (chart.config.type === 'bar') {
+    if (chart.config.type === 'bar' || chart.config.type === 'horizontalBar') {
       this.options.position = 'default';
       this.options.arc = false;
       this.options.overlap = true;
@@ -91,7 +92,14 @@
       return;
     }
     this.percentage = null;
-    var label = this.getLabel(dataset, element, index);
+    var callbackPayload = {
+      label: this.chart.config.data.labels[index],
+      value: dataset.data[index],
+      percentage: this.getPercentage(dataset, element, index),
+      dataset: dataset,
+      index: index
+    }
+    var label = this.getLabel(dataset, element, index, callbackPayload);
     if (!label) {
       return;
     }
@@ -105,22 +113,26 @@
     }
     ctx.beginPath();
     ctx.fillStyle = this.getFontColor(dataset, element, index);
-    this.renderLabel(label, renderInfo);
+    this.renderLabel(label, renderInfo, callbackPayload);
     ctx.restore();
   };
 
-  Label.prototype.renderLabel = function (label, renderInfo) {
-    return this.options.arc ? this.renderArcLabel(label, renderInfo) : this.renderBaseLabel(label, renderInfo);
+  Label.prototype.renderLabel = function (label, renderInfo, callbackPayload) {
+    return this.options.arc
+        ? this.renderArcLabel(label, renderInfo, callbackPayload)
+        : this.renderBaseLabel(label, renderInfo, callbackPayload);
   };
 
-  Label.prototype.renderBaseLabel = function (label, position) {
+  Label.prototype.renderBaseLabel = function (label, position, callbackPayload) {
     var ctx = this.ctx;
     if (typeof label === 'object') {
       ctx.drawImage(label, position.x - label.width / 2, position.y - label.height / 2, label.width, label.height);
     } else {
       ctx.save();
       ctx.textBaseline = 'top';
-      ctx.textAlign = 'center';
+      ctx.textAlign = typeof this.options.textAlign === 'function'
+        ? this.options.textAlign(callbackPayload)
+        : this.options.textAlign;
 
       if (this.options.textShadow) {
         ctx.shadowOffsetX = this.options.shadowOffsetX;
@@ -132,7 +144,16 @@
       var lines = label.split('\n');
       for (var i = 0; i < lines.length; i++) {
         var y = position.y - this.options.fontSize / 2 * lines.length + this.options.fontSize * i;
-        ctx.fillText(lines[i], position.x, y);
+        if(this.chart.config.type === 'horizontalBar') {
+          var margin = typeof this.options.textMargin === 'function'
+            ? this.options.textMargin(callbackPayload)
+            : this.options.textMargin;
+          var pos = position.x + margin;
+          ctx.fillText(lines[i], pos, y);
+        } else {
+          ctx.textAlign = this.options.textAlign;
+          ctx.fillText(lines[i], position.x, y);
+        }
       }
       ctx.restore();
     }
@@ -189,16 +210,10 @@
     );
   };
 
-  Label.prototype.getLabel = function (dataset, element, index) {
+  Label.prototype.getLabel = function (dataset, element, index, callbackPayload) {
     var label;
     if (typeof this.options.render === 'function') {
-      label = this.options.render({
-        label: this.chart.config.data.labels[index],
-        value: dataset.data[index],
-        percentage: this.getPercentage(dataset, element, index),
-        dataset: dataset,
-        index: index
-      });
+      label = this.options.render(callbackPayload);
     } else {
       switch (this.options.render) {
         case 'value':

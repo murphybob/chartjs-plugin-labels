@@ -1,6 +1,11 @@
 # chartjs-plugin-labels
 Chart.js plugin to display labels on pie, doughnut and polar area chart. Original Chart.PieceLabel.js
 
+## This Fork
+
+This fork adds basic support for horizontal bar chart labels.
+It is inspired by the fork at https://github.com/qubiack/chartjs-plugin-labels but somewhat less specific. 
+
 ## Demo
 [Demo](http://emn178.github.io/chartjs-plugin-labels/samples/demo/)
 
@@ -103,12 +108,28 @@ new Chart(ctx, {
         outsidePadding: 4,
 
         // add margin of text when position is `outside` or `border`
+        // also accepts a function which receives a callback payload (see below)
         // default is 2
-        textMargin: 4
+        textMargin: 4,
+        
+        // change horizontal alignment of label
+        // can be used for shifting text of unknown length inside or outside a horizontal bar
+        // also accepts a function which receives a callback payload (see below)
+        // default is "center"
+        textAlign: "right"
       }
     }
   }
 });
+
+// calbacks receive an object of the following shape
+{
+    label: string,
+    value: number,
+    percentage: number,
+    dataset: ChartJs dataset,
+    index: number
+}
 
 // custom render
 {
