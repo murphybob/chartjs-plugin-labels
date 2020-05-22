@@ -9,24 +9,11 @@ It is inspired by the fork at https://github.com/qubiack/chartjs-plugin-labels b
 ## Demo
 [Demo](http://emn178.github.io/chartjs-plugin-labels/samples/demo/)
 
-## Download
-[Compress](https://raw.github.com/emn178/chartjs-plugin-labels/master/build/chartjs-plugin-labels.min.js)  
-[Uncompress](https://raw.github.com/emn178/chartjs-plugin-labels/master/src/chartjs-plugin-labels.js)
-
-## CDN Link
-You can put the below link in the script tag
-
-    https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
-
 ## Installation
-You can also install chartjs-plugin-labels by using Bower.
 
-    bower install chartjs-plugin-labels
+You can use this command to install:
 
-
-Or node.js, you can use this command to install:
-
-    npm install chartjs-plugin-labels
+    npm install @murphybob/chartjs-plugin-labels
 
 ## Notice
 v1.0.0 has breaking changes. Please see [CHANGELOG v1.0.0](https://github.com/emn178/chartjs-plugin-labels/blob/master/CHANGELOG.md#v170--2018-08-19)  
