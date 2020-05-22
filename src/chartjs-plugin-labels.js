@@ -106,7 +106,7 @@
     var ctx = this.ctx;
     ctx.save();
     ctx.font = Chart.helpers.fontString(this.options.fontSize, this.options.fontStyle, this.options.fontFamily);
-    var renderInfo = this.getRenderInfo(element, label);
+    var renderInfo = this.getRenderInfo(element, label, callbackPayload);
     if (!this.drawable(element, label, renderInfo)) {
       ctx.restore();
       return;
@@ -151,7 +151,6 @@
           var pos = position.x + margin;
           ctx.fillText(lines[i], pos, y);
         } else {
-          ctx.textAlign = this.options.textAlign;
           ctx.fillText(lines[i], position.x, y);
         }
       }
@@ -298,9 +297,9 @@
     return percentage;
   };
 
-  Label.prototype.getRenderInfo = function (element, label) {
+  Label.prototype.getRenderInfo = function (element, label, callbackPayload) {
     if (this.chart.config.type === 'bar') {
-      return this.getBarRenderInfo(element, label);
+      return this.getBarRenderInfo(element, label, callbackPayload);
     } else {
       return this.options.arc ? this.getArcRenderInfo(element, label) : this.getBaseRenderInfo(element, label);
     }
@@ -355,9 +354,12 @@
     }
   };
 
-  Label.prototype.getBarRenderInfo = function (element, label) {
+  Label.prototype.getBarRenderInfo = function (element, label, callbackPayload) {
     var renderInfo = element.tooltipPosition();
-    renderInfo.y -= this.measureLabel(label).height / 2 + this.options.textMargin;
+    renderInfo.y -= this.measureLabel(label).height / 2 +
+        (typeof this.options.textMargin === "function" ?
+            this.options.textMargin(callbackPayload) :
+            this.options.textMargin);
     return renderInfo;
   };
 
